@@ -1,41 +1,37 @@
 #!/usr/bin/env python3
 """
-Basic Flask app
+Module 0-app
 """
-
-import re
-import babel
 from flask import Flask, render_template, request
 from flask_babel import Babel
 
 
-class Config():
-    """ Configuration for babel translation """
-    LANGUAGES = ["en", "fr"]
+class Config(object):
+    """i18n configuration"""
+    LANGUAGES = ['en', 'fr']
+    BABEL_DEFAULT_LOCALE = 'en'
+    BABEL_DEFAULT_TIMEZONE = 'UTC'
 
 
 app = Flask(__name__)
-app.config.from_object(Config())
-Babel.default_locale = "en"
-Babel.default_timezone = "UTC"
+app.config.from_object(Config)
 babel = Babel(app)
+
+
+@app.route("/", strict_slashes=False)
+def index():
+    """didplays a basic hello world message"""
+    return render_template("4-index.html")
 
 
 @babel.localeselector
 def get_locale():
-    """locale func"""
-    lang = request.args.get('locale')
-    if lang is not None:
-        if lang in app.config['LANGUAGES']:
-            return lang
+    """Gets best fmatch locale according to request"""
+    locale = request.args.get('locale')
+    if locale and locale in app.config['LANGUAGES']:
+        return locale
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
-@app.route("/")
-def gettext():
-    """get text"""
-    return render_template('3-index.html')
-
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="5000")
+    app.run(debug=True, host="0.0.0.0", port="5000")
